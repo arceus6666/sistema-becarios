@@ -1,0 +1,81 @@
+<div class="container">
+  <h1 class="my-3">Tareas</h1>
+  <table class="table">
+    <thead>
+      <tr style="text-align: center;">
+        <th scope="col">#</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Fecha de inicio</th>
+        <th scope="col">Fecha de fin</th>
+        <th scope="col">Horas</th>
+        <th scope="col">Becarios</th>
+        <th scope="col">Terminar</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngIf="tareas && tareas.length>0; else elseTemplate">
+        <ng-container *ngFor="let tarea of tareas; let i=index">
+          <tr style="text-align: center;" *ngIf="!tarea.finished">
+            <!-- <div> -->
+            <th scope="row">{{i + 1}}</th>
+            <td>{{tarea.name}}</td>
+            <td>{{tarea.bdate}}</td>
+            <td>{{tarea.edate}}</td>
+            <td>{{tarea.hours}}</td>
+            <td>
+              <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                data-bs-tarea="{{i}}" (click)="selected = tarea;">
+                <i class="bi bi-info-circle"></i>
+              </button>
+            </td>
+            <td>
+              <a [routerLink]="[ '/terminar', tarea._id ]" style="color:black;"><i class="bi bi-check-square"></i></a>
+            </td>
+            <!-- </div> -->
+          </tr>
+        </ng-container>
+
+      </ng-container>
+      <ng-template #elseTemplate>
+        <tr style="text-align: center;">
+          <td colspan="7">No hay tareas</td>
+        </tr>
+      </ng-template>
+      <tr class="table-light" (click)="addTarea()" style="text-align: center; cursor: pointer;">
+        <td colspan="7">Crear tarea</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+  *ngIf="tareas && selected !== undefined">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Becarios en "{{selected.name}}"</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3 align-items-center" *ngFor="let b of selected.becarios; let sbi=index">
+          <div class="col-auto">
+            <label for="b{{sbi}}" class="col-form-label">Nombre:</label>
+          </div>
+          <div class="col-auto">
+            <input type="text" id="b{{sbi}}" class="form-control-plaintext" aria-describedby="passwordHelpInline"
+              readonly [value]="becarios?getName(b):''">
+          </div>
+        </div>
+        <div class="row g-3 align-items-end">
+          <div class="col-auto">
+            <button class="btn btn-outline-dark" (click)="tareaABecario()">Asignar</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
