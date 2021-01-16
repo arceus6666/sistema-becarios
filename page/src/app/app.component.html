@@ -1,17 +1,24 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">Sistema Becarios</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+
+    <a class="navbar-brand mr-5" href="#" style="width: 30%;">
+      <img src="/assets/logo_full.png" alt="logo_upb" style="width: 30%; height: 30%;">
+      Sistema Trabajo Becario
+    </a>
+    <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
       aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    </button> -->
+    <div class="collapse navbar-collapse ml-5" id="navbarNavDropdown">
       <ul class="navbar-nav">
         <li class="nav-item">
           <a class="nav-link active" [routerLink]="[ '/becarios' ]" routerLinkActive="active">Becarios</a>
         </li>
         <li class="nav-item">
           <a class="nav-link active" [routerLink]="[ '/tareas' ]" routerLinkActive="active">Tareas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" [routerLink]="[ '/semestres' ]" routerLinkActive="active">Semestres</a>
         </li>
         <!-- <li class="nav-item">
           <a class="nav-link active" (click)="">Cambiar password</a>

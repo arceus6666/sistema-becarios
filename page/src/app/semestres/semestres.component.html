@@ -1,0 +1,31 @@
+<div class="container">
+  <h1 class="my-3">Semestres</h1>
+  <table class="table">
+    <thead>
+      <tr style="text-align: center;">
+        <th scope="col">#</th>
+        <th scope="col">Nombre</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngIf="semestres && semestres.length>0; else elseTemplate">
+        <ng-container *ngFor="let semestre of semestres; let i=index">
+          <tr style="text-align: center;" *ngIf="!semestre.finished">
+            <!-- <div> -->
+            <th scope="row">{{i + 1}}</th>
+            <td>{{semestre.name}}</td>
+            <!-- </div> -->
+          </tr>
+        </ng-container>
+      </ng-container>
+      <ng-template #elseTemplate>
+        <tr style="text-align: center;">
+          <td colspan="2">No hay semestres</td>
+        </tr>
+      </ng-template>
+      <tr class="table-light" (click)="addSemestre()" style="text-align: center; cursor: pointer;">
+        <td colspan="2">Crear semestre</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -16,7 +16,7 @@ export class AppComponent implements OnInit {
       allowOutsideClick: false,
       allowEscapeKey: false,
       preConfirm: data => {
-        if (data === 'becarios2021#') {
+        if (data === /*'becarios2021#'*/'qwe') {
           return true;
         }
         Swal.showValidationMessage('Wrong password');

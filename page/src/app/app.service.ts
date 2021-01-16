@@ -6,13 +6,15 @@ import { Injectable } from '@angular/core';
 })
 export class AppService {
 
+  private url = 'http://localhost:7890';
+
   constructor(
     private httpClient: HttpClient
   ) { }
 
   public async getBecarios() {
     return new Promise((res, rej) => {
-      this.httpClient.get('http://localhost:7890/becarios/all').subscribe(r => {
+      this.httpClient.get(`${this.url}/becarios/all`).subscribe(r => {
         res(r);
       }, rej);
     });
@@ -20,15 +22,23 @@ export class AppService {
 
   public async getTareas() {
     return new Promise((res, rej) => {
-      this.httpClient.get('http://localhost:7890/tareas/all').subscribe(r => {
+      this.httpClient.get(`${this.url}/tareas/all`).subscribe(r => {
         res(r)
       }, rej)
     });
   }
 
+  public async getSemestres() {
+    return new Promise((res, rej) => {
+      this.httpClient.get(`${this.url}/semestres/all`).subscribe(r => {
+        res(r);
+      }, rej);
+    })
+  }
+
   public async getTareaById(id: string) {
     return new Promise((res, rej) => {
-      this.httpClient.get('http://localhost:7890/tareas/find/' + id).subscribe(r => {
+      this.httpClient.get(`${this.url}/tareas/find/` + id).subscribe(r => {
         res(r)
       }, rej)
     });
@@ -36,7 +46,7 @@ export class AppService {
 
   public createBecario(body) {
     return new Promise((res, rej) => {
-      this.httpClient.post('http://localhost:7890/becarios/add', body).subscribe(r => {
+      this.httpClient.post(`${this.url}/becarios/add`, body).subscribe(r => {
         res(r);
       }, rej)
     })
@@ -44,7 +54,15 @@ export class AppService {
 
   public createTarea(body) {
     return new Promise((res, rej) => {
-      this.httpClient.post('http://localhost:7890/tareas/add', body).subscribe(r => {
+      this.httpClient.post(`${this.url}/tareas/add`, body).subscribe(r => {
+        res(r);
+      }, rej)
+    })
+  }
+
+  public createSemestre(body) {
+    return new Promise((res, rej) => {
+      this.httpClient.post(`${this.url}/semestres/add`, body).subscribe(r => {
         res(r);
       }, rej)
     })
@@ -52,7 +70,7 @@ export class AppService {
 
   public modifyBecario(body) {
     return new Promise((res, rej) => {
-      this.httpClient.put(`http://localhost:7890/becarios/update/${body._id}`, body).subscribe(r => {
+      this.httpClient.put(`${this.url}/becarios/update/${body._id}`, body).subscribe(r => {
         res(r);
       }, rej)
     })
@@ -60,7 +78,7 @@ export class AppService {
 
   public modifyTarea(body) {
     return new Promise((res, rej) => {
-      this.httpClient.put(`http://localhost:7890/tareas/update/${body._id}`, body).subscribe(r => {
+      this.httpClient.put(`${this.url}/tareas/update/${body._id}`, body).subscribe(r => {
         res(r);
       }, rej)
     })

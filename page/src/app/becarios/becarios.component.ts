@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import Swal from 'sweetalert2';
 import { AppService } from '../app.service';
 import { IBecario } from '../interfaces/becario.interface';
+import { ISemestre } from '../interfaces/semestre.interface';
 import { ITarea } from '../interfaces/tarea.interface';
 
 @Component({
@@ -13,12 +14,12 @@ export class BecariosComponent implements OnInit {
 
   public becarios: IBecario[];
   private tareas: ITarea[];
+  public semestres: ISemestre[] = [];
 
   public showBecarios;
 
   public selected: string;
 
-  public semestres = [];
 
   constructor(
     private service: AppService
@@ -29,9 +30,16 @@ export class BecariosComponent implements OnInit {
     this.service.getTareas().then((t: any) => {
       this.tareas = t;
     }).then(() => {
+      this.service.getSemestres().then((s: any) => {
+        this.semestres = s;
+      })
+    }).then(() => {
       this.service.getBecarios().then(async (b: any) => {
+        // await console.log(this.semestres)
         for (let i in b) {
           b[i].ahours = 0;
+          const sem = await this.semestres.find(s => b[i].semester === s._id);
+          b[i].semester = await sem.name;
           for (let t of this.tareas) {
             if (!t.finished && t.becarios.includes(b[i]._id)) {
               // console.log(t, b[i], 'includes')
@@ -40,31 +48,50 @@ export class BecariosComponent implements OnInit {
           }
         }
         this.becarios = await b;
-        this.showBecarios = b;
-        b.forEach(e => {
-          if (!this.semestres.includes(e.semester))
-            this.semestres.push(e.semester);
-        });
+        // this.showBecarios = b;
+        this.sort({ _id: 0 });
+        // b.forEach(e => {
+        //   if (!this.semestres.includes(e.semester))
+        //     this.semestres.push(e.semester);
+        // });
       })
     })
   }
 
-  public addBecario() {
+  public getSemestre(id) {
+    return this.semestres.find(s => s._id === id).name;
+  }
 
-    Swal.mixin({
+  public async addBecario() {
+
+    const inputOptions = {};
+
+    for (let s of this.semestres) {
+      inputOptions[s._id] = await s.name;
+    }
+
+    await Swal.mixin({
       title: 'Nuevo becario',
-      input: 'text',
+      // input: 'text',
       confirmButtonText: 'Next &rarr;',
       showCancelButton: true,
       progressSteps: ['1', '2'],
-      preConfirm: (val: string) => {
-        if (val.length > 0)
-          return val;
-        Swal.showValidationMessage('Ingrese un valor.');
-      }
     }).queue([
-      'Nombre',
-      'Semestre'
+      {
+        title: 'Nombre',
+        input: 'text',
+        preConfirm: (val: string) => {
+          if (val.length > 0)
+            return val;
+          Swal.showValidationMessage('Ingrese un valor.');
+        }
+      },
+      {
+        title: 'Semestre',
+        input: 'select',
+        inputOptions,
+        inputValue: this.semestres[this.semestres.length - 1]._id
+      }
     ]).then(async (result: any) => {
       if (result.value) {
         const answers = await result.value;
@@ -72,51 +99,43 @@ export class BecariosComponent implements OnInit {
           name: answers[0],
           semester: answers[1],
         }
+        // await console.log(b)
         let r: any = await this.service.createBecario(b)
+        r.semester = await this.semestres.find(s => s._id === answers[1]);
         await this.becarios.push(r);
-        if (!this.semestres.includes(answers[1]))
-          await this.semestres.push(answers[1]);
-        await this.sort('any');
+        // if (!this.semestres.includes(answers[1]))
+        //   await this.semestres.push(answers[1]);
+        await this.sort({ _id: 0 });
         await Swal.fire({
           title: 'Created',
           icon: 'success'
-        })
+        });
       }
-    })
-
-    // Swal.fire({
-    //   title: 'Nuevo becario',
-    //   text: 'Nombre:',
-    //   input: 'text',
-    //   preConfirm: (name) => {
-    //     if (name.length > 0) return true;
-    //     Swal.showValidationMessage('Ingrese un nombre.');
-    //   }
-    // }).then(r => {
-    //   console.log(r)
-    //   if (r.isConfirmed) {
-    //     this.becarios.push({
-    //       _id: `${this.becarios.length + 1}`,
-    //       name: 'n',
-    //       semester
-    //     })
-    //     Swal.fire('Created', '', 'success');
-    //   }
-    // });
+    });
   }
 
   public async sort(s) {
     // console.log('sorting')
-    if (s === 'any') {
+    const found = await this.semestres.findIndex(e => e._id === s._id);
+    if (found < 0) {
       // console.log('any')
-      this.selected = 'Todos';
-      this.showBecarios = [...this.becarios];
+      this.selected = await 'Todos';
+      // await console.log(this.becarios)
+      this.showBecarios = await [...this.becarios];
+      // await console.log(this.showBecarios)
       return;
-    }
-
+    } //else {
     // console.log(s)
-    this.selected = s;
-    this.showBecarios = this.becarios.filter(b => b.semester === s);
+    this.selected = await s.name;
+    this.showBecarios = await this.becarios.filter(b => b.semester === s.name);
+    // }
+
+    // this.showBecarios = await this.showBecarios.map(async (sb) => {
+    //   await console.log(sb)
+    //   sb.semester = await this.getSemestre(sb.semester);
+    //   await console.log(sb)
+    //   return await sb;
+    // });
   }
 
 }

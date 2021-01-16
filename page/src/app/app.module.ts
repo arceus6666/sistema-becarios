@@ -9,6 +9,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { TerminarComponent } from './terminar/terminar.component';
 import { AppService } from './app.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SemestresComponent } from './semestres/semestres.component';
 
 const routes: Routes = [
   {
@@ -24,6 +25,10 @@ const routes: Routes = [
     component: TerminarComponent,
   },
   {
+    path: 'semestres',
+    component: SemestresComponent,
+  },
+  {
     path: '**',
     redirectTo: 'becarios',
     pathMatch: 'full',
@@ -34,7 +39,8 @@ const routes: Routes = [
     AppComponent,
     BecariosComponent,
     TareasComponent,
-    TerminarComponent
+    TerminarComponent,
+    SemestresComponent
   ],
   imports: [
     BrowserModule,

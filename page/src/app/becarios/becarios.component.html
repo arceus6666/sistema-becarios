@@ -15,13 +15,13 @@
       <ul class="dropdown-menu">
         <div *ngIf="semestres.length>0">
           <li *ngFor="let s of semestres; let si=index">
-            <a class="dropdown-item" href="#" (click)="sort(s)">{{s}}</a>
+            <a class="dropdown-item" href="#" (click)="sort(s)">{{s.name}}</a>
           </li>
           <li>
             <hr class="dropdown-divider">
           </li>
         </div>
-        <li><a class="dropdown-item" href="#" (click)="sort('any')">Todos</a></li>
+        <li><a class="dropdown-item" href="#" (click)="sort({_id:0})">Todos</a></li>
       </ul>
     </div>
   </div>

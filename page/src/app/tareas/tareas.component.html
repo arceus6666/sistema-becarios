@@ -19,8 +19,8 @@
             <!-- <div> -->
             <th scope="row">{{i + 1}}</th>
             <td>{{tarea.name}}</td>
-            <td>{{tarea.bdate}}</td>
-            <td>{{tarea.edate}}</td>
+            <td>{{tarea.bdate | date}}</td>
+            <td>{{tarea.edate | date}}</td>
             <td>{{tarea.hours}}</td>
             <td>
               <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#exampleModal"

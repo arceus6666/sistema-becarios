@@ -7,6 +7,7 @@ const create = async (req, res) => {
     bdate: req.body.bdate,
     edate: req.body.edate,
     hours: req.body.hours,
+    semester: req.body.semester,
   })
 
   await tarea.save().then(b => {
