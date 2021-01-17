@@ -1,40 +1,92 @@
 <div class="container">
   <h1 class="my-3">Tareas</h1>
+
+  <div class="row">
+    <div class="col-3">
+      <div class="input-group mb-3">
+        <label class="btn border border-end-0 rounded-start border-dark" for="inputGroupSelect01"
+          style="cursor:default">Semestre:</label>
+        <div class="btn-group">
+          <span class="btn border border-start-0 rounded-0 border-dark" style="cursor:default">
+            {{semestre ? semestre : 'Todos'}}
+          </span>
+
+          <button type="button" class="btn btn-outline-dark dropdown-toggle dropdown-toggle-split"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu">
+            <div *ngIf="semestres.length > 0">
+              <li *ngFor="let s of semestres; let si=index">
+                <a class="dropdown-item" (click)="semestre = s.name" style="cursor: pointer;">{{s.name}}</a>
+              </li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+            </div>
+            <li><a class="dropdown-item" (click)="semestre = null" style="cursor: pointer;">Todos</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-3">
+      <div class="input-group mb-3">
+        <label class="btn border border-end-0 rounded-start border-dark" style="cursor:default">
+          Mostrar finalizados?:
+        </label>
+        <button class="btn btn-outline-secondary" type="button" (click)="hidden = !hidden;">
+          {{hidden ? 'No' : 'Si'}}
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+
   <table class="table">
     <thead>
       <tr style="text-align: center;">
         <th scope="col">#</th>
         <th scope="col">Nombre</th>
-        <th scope="col">Fecha de inicio</th>
-        <th scope="col">Fecha de fin</th>
+        <th scope="col">Periodo</th>
+        <th scope="col">Semestre</th>
         <th scope="col">Horas</th>
         <th scope="col">Becarios</th>
         <th scope="col">Terminar</th>
       </tr>
     </thead>
     <tbody>
-      <ng-container *ngIf="tareas && tareas.length>0; else elseTemplate">
-        <ng-container *ngFor="let tarea of tareas; let i=index">
-          <tr style="text-align: center;" *ngIf="!tarea.finished">
+      <ng-container *ngIf="showTareas && showTareas.length > 0; else elseTemplate;">
+        <ng-container *ngFor="let tarea of showTareas; let i = index;">
+          <tr style="text-align: center;"
+            *ngIf="(!hidden || !tarea.finished) && (semestre === null || tarea.semester === semestre);">
             <!-- <div> -->
             <th scope="row">{{i + 1}}</th>
             <td>{{tarea.name}}</td>
-            <td>{{tarea.bdate | date}}</td>
-            <td>{{tarea.edate | date}}</td>
+            <td>{{tarea.bdate | date}} - {{tarea.edate | date}}</td>
+            <td>{{tarea.semester}}</td>
             <td>{{tarea.hours}}</td>
             <td>
               <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#exampleModal"
-                data-bs-tarea="{{i}}" (click)="selected = tarea;">
+                data-bs-tarea="{{i}}" (click)="selected = tareas[i];">
                 <i class="bi bi-info-circle"></i>
               </button>
             </td>
             <td>
-              <a [routerLink]="[ '/terminar', tarea._id ]" style="color:black;"><i class="bi bi-check-square"></i></a>
+              <ng-container *ngIf="tarea.finished; else elseTemplate2">
+                <span><i class="bi bi-check-square"></i></span>
+              </ng-container>
+              <ng-template #elseTemplate2>
+                <a [routerLink]="[ '/terminar', tarea._id ]" style="color:black;"><i
+                    class="bi bi-box-arrow-right"></i></a>
+              </ng-template>
             </td>
             <!-- </div> -->
           </tr>
         </ng-container>
-
+        <tr style="text-align: center;" *ngIf="showTareas.length === terminadas && hidden;">
+          <td colspan="7">No hay tareas sin terminar</td>
+        </tr>
       </ng-container>
       <ng-template #elseTemplate>
         <tr style="text-align: center;">
@@ -74,7 +126,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
       </div>
     </div>
   </div>

@@ -7,6 +7,6 @@ export interface ITarea {
   bdate: string;
   edate: string;
   hours: number;
-  becarios: string[] | IBecario[];
+  becarios: string[];
   finished: boolean;
 }

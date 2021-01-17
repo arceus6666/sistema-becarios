@@ -14,27 +14,38 @@ export class TareasComponent implements OnInit {
 
   public tareas: ITarea[];
   public becarios: IBecario[];
-  private semestres: ISemestre[] = [];
+  public semestres: ISemestre[] = [];
+  public showTareas = [];
   public selected: ITarea = null;
+  public hidden = true;
+  public semestre = null;
+  public terminadas = 0;
 
   constructor(
     private service: AppService
   ) { }
 
-  ngOnInit(): void {
-    this.service.getTareas().then((r: any) => {
+  async ngOnInit() {
+    await this.service.getTareas().then((r: any) => {
       this.tareas = r;
       this.selected = r[0];
-    }).then(() => {
-      this.service.getBecarios().then((b: any) => {
-        // console.log(b)
-        this.becarios = b;
-      })
-    }).then(() => {
-      this.service.getSemestres().then((s: any) => {
-        this.semestres = s;
-      });
+    })
+    await this.service.getBecarios().then((b: any) => {
+      // console.log(b)
+      this.becarios = b;
+    })
+
+    await this.service.getSemestres().then((s: any) => {
+      this.semestres = s;
+      // console.log(s);
     });
+
+    await this.sort();
+
+    await this.tareas.forEach(t => { if (t.finished) this.terminadas++; });
+
+    await console.log(this.terminadas, this.showTareas.length)
+
   }
 
   public async addTarea() {
@@ -67,7 +78,7 @@ export class TareasComponent implements OnInit {
       },
       {
         title: 'Fecha de inicio',
-        text:'Formato: "MM/dd/yyyy"',
+        text: 'Formato: "MM/dd/yyyy"',
         input: 'text',
         inputPlaceholder: `${this.toShort(new Date(Date.now()))}`,
         preConfirm: (val: string) => {
@@ -79,7 +90,7 @@ export class TareasComponent implements OnInit {
       },
       {
         title: 'Fecha de fin',
-        text:'Formato: "MM/dd/yyyy"',
+        text: 'Formato: "MM/dd/yyyy"',
         input: 'text',
         inputPlaceholder: `${this.toShort(new Date(Date.now()))}`,
         preConfirm: (val: string) => {
@@ -111,6 +122,7 @@ export class TareasComponent implements OnInit {
         if (this.tareas.length < 1)
           this.selected = tarea;
         await this.tareas.push(tarea);
+        await this.sort();
         await Swal.fire('Creada', '', 'success')
       }
     })
@@ -124,30 +136,45 @@ export class TareasComponent implements OnInit {
   }
 
   public async tareaABecario() {
-    let options: SweetAlertOptions = await {
-      title: 'Escoja al becario',
-      input: 'select',
-      inputOptions: {
-
-      },
-      inputPlaceholder: 'Escoja al becario',
-      showCancelButton: true,
-    }
+    let inputOptions = {};
 
     for (let i in this.becarios) {
-      if (this.becarios[i].semester === this.selected.semester)
-        options.inputOptions[this.becarios[i]._id] = await this.becarios[i].name;
+      if (this.becarios[i].semester === this.selected.semester && !this.selected.becarios.includes(this.becarios[i]._id))
+        inputOptions[this.becarios[i]._id] = await this.becarios[i].name;
     }
 
-    await Swal.fire(options).then(async (res: any) => {
-      await this.selected.becarios.push(res.value)
-      await this.service.modifyTarea(this.selected)
-      let b = await this.becarios.find(b => b._id === res.value);
-      await b.tareas.push(this.selected._id);
-      await this.service.modifyBecario(b);
-      // console.log(res)
-      Swal.fire('Added', '', 'success')
-    })
+    await Swal.fire({
+      title: 'Escoja al becario',
+      input: 'select',
+      inputOptions,
+      inputPlaceholder: 'Escoja al becario',
+      showCancelButton: true,
+      preConfirm: (val: string) => {
+        if (val.length > 0) {
+          return val;
+        }
+        Swal.showValidationMessage('Escoja un becario');
+      }
+    }).then(async (res: any) => {
+      if (res.value) {
+        let error = false;
+        await this.selected.becarios.push(res.value)
+        await this.service.modifyTarea(this.selected).catch(e => { error = true; });
+        if (error) {
+          Swal.fire('Error', 'Please try again later', 'error');
+          return;
+        }
+        let b = await this.becarios.find(b => b._id === res.value);
+        await b.tareas.push(this.selected._id);
+        await this.service.modifyBecario(b).catch(e => { error = true; });
+        if (error) {
+          Swal.fire('Error', 'Please try again later', 'error');
+          return;
+        }
+        // console.log(res)
+        Swal.fire('Added', '', 'success');
+      }
+    });
   }
 
   public getName(id) {
@@ -155,6 +182,26 @@ export class TareasComponent implements OnInit {
       if (b._id === id) return b.name;
     }
     return '';
+  }
+
+  public async sort() {
+    // console.log('sort')
+    this.showTareas = await [];
+    for (let i in this.tareas) {
+      // await console.log(i)
+      let t: any = await this.tareas[i]
+      t.semester = await this.idASemestre(t.semester)
+      await this.showTareas.push(t);
+    }
+  }
+
+  public async idASemestre(id: string) {
+    // await console.log(id)
+    // await console.log(this.semestres)
+    const semestre = await this.semestres.find(s => s._id === id);
+    // await console.log(semestre);
+    return await semestre.name;
+    // return 'x'
   }
 
 }

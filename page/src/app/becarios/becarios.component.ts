@@ -106,7 +106,9 @@ export class BecariosComponent implements OnInit {
           Swal.fire('Error', 'Please try again later.', 'error');
           return;
         }
-        r.semester = await this.semestres.find(s => s._id === answers[1]);
+        await console.log(r)
+        r.semester = await this.semestres.find(s => s._id === answers[1]).name;
+        await console.log(r)
         await this.becarios.push(r);
         // if (!this.semestres.includes(answers[1]))
         //   await this.semestres.push(answers[1]);

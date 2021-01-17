@@ -2,7 +2,7 @@
   <h1 class="my-2">{{tarea.name}}</h1>
   <div class="row" *ngFor="let becario of tarea.becarios; let i=index">
     <div class="input-group mb-3">
-      <span class="input-group-text" id="basic-addon1">{{becario.name}}</span>
+      <span class="input-group-text" id="basic-addon1">{{becario}}</span>
       <span class="input-group-text"><i class="bi-alarm"></i>:</span>
       <input type="number" class="form-control" placeholder="0" [value]="tarea.hours" [(ngModel)]="horas[i]">
     </div>
