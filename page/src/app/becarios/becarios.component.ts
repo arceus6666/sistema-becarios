@@ -100,7 +100,12 @@ export class BecariosComponent implements OnInit {
           semester: answers[1],
         }
         // await console.log(b)
-        let r: any = await this.service.createBecario(b)
+        let error = false;
+        let r: any = await this.service.createBecario(b).catch(e => { error = true });
+        if (error) {
+          Swal.fire('Error', 'Please try again later.', 'error');
+          return;
+        }
         r.semester = await this.semestres.find(s => s._id === answers[1]);
         await this.becarios.push(r);
         // if (!this.semestres.includes(answers[1]))
