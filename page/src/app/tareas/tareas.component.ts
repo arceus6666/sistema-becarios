@@ -44,16 +44,20 @@ export class TareasComponent implements OnInit {
 
     await this.tareas.forEach(t => { if (t.finished) this.terminadas++; });
 
-    await console.log(this.terminadas, this.showTareas.length)
+    // await console.log(this.terminadas, this.showTareas.length)
 
   }
 
   public async addTarea() {
     const inputOptions = {};
 
+    // await console.log('io')
+
     for (let s of this.semestres) {
       inputOptions[s._id] = await s.name;
     }
+
+    // await console.log(inputOptions)
 
     await Swal.mixin({
       // input: 'text',
@@ -139,9 +143,14 @@ export class TareasComponent implements OnInit {
     let inputOptions = {};
 
     for (let i in this.becarios) {
-      if (this.becarios[i].semester === this.selected.semester && !this.selected.becarios.includes(this.becarios[i]._id))
+      // await console.log(this.becarios[i].semester, this.selected.semester)
+      const sem = await this.idASemestre(this.becarios[i].semester)
+      // await console.log(sem)
+      if (sem === this.selected.semester && !this.selected.becarios.includes(this.becarios[i]._id))
         inputOptions[this.becarios[i]._id] = await this.becarios[i].name;
     }
+
+    // await console.log(inputOptions)
 
     await Swal.fire({
       title: 'Escoja al becario',
