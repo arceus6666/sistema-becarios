@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppService {
 
-  private url = 'http://localhost:7890';
+  private url = environment.url;
 
   constructor(
     private httpClient: HttpClient
@@ -55,6 +56,7 @@ export class AppService {
   public createTarea(body) {
     return new Promise((res, rej) => {
       this.httpClient.post(`${this.url}/tareas/add`, body).subscribe(r => {
+        // console.log(body, r)
         res(r);
       }, rej)
     })
@@ -79,6 +81,38 @@ export class AppService {
   public modifyTarea(body) {
     return new Promise((res, rej) => {
       this.httpClient.put(`${this.url}/tareas/update/${body._id}`, body).subscribe(r => {
+        res(r);
+      }, rej)
+    })
+  }
+
+  public modifySemestre(body) {
+    return new Promise((res, rej) => {
+      this.httpClient.put(`${this.url}/semestres/update/${body._id}`, body).subscribe(r => {
+        res(r);
+      }, rej)
+    })
+  }
+
+  public deleteBecario(id) {
+    return new Promise((res, rej) => {
+      this.httpClient.delete(`${this.url}/becarios/delete/${id}`).subscribe(r => {
+        res(r);
+      }, rej)
+    })
+  }
+
+  public deleteTarea(id) {
+    return new Promise((res, rej) => {
+      this.httpClient.delete(`${this.url}/tareas/delete/${id}`).subscribe(r => {
+        res(r);
+      }, rej)
+    })
+  }
+
+  public deleteSemestre(id) {
+    return new Promise((res, rej) => {
+      this.httpClient.delete(`${this.url}/semestres/delete/${id}`).subscribe(r => {
         res(r);
       }, rej)
     })

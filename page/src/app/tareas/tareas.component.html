@@ -5,7 +5,7 @@
     <div class="col-3">
       <div class="input-group mb-3">
         <label class="btn border border-end-0 rounded-start border-dark" for="inputGroupSelect01"
-          style="cursor:default">Semestre:</label>
+          style="cursor:default">Gestión:</label>
         <div class="btn-group">
           <span class="btn border border-start-0 rounded-0 border-dark" style="cursor:default">
             {{semestre ? semestre : 'Todos'}}
@@ -49,10 +49,12 @@
         <th scope="col">#</th>
         <th scope="col">Nombre</th>
         <th scope="col">Periodo</th>
-        <th scope="col">Semestre</th>
+        <th scope="col">Gestión</th>
         <th scope="col">Horas</th>
         <th scope="col">Becarios</th>
         <th scope="col">Terminar</th>
+        <th scope="col">Editar</th>
+        <th scope="col">Eliminar</th>
       </tr>
     </thead>
     <tbody>
@@ -64,13 +66,13 @@
             <th scope="row">{{i + 1}}</th>
             <td>{{tarea.name}}</td>
             <td>{{tarea.bdate | date}} - {{tarea.edate | date}}</td>
-            <td>{{tarea.semester}}</td>
+            <td>{{(tarea.semester)}}</td>
             <td>{{tarea.hours}}</td>
             <td>
-              <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#exampleModal"
-                data-bs-tarea="{{i}}" (click)="selected = tareas[i];">
+              <span data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-tarea="{{i}}" (click)="selected = i;"
+                style="cursor: pointer;">
                 <i class="bi bi-info-circle"></i>
-              </button>
+              </span>
             </td>
             <td>
               <ng-container *ngIf="tarea.finished; else elseTemplate2">
@@ -81,20 +83,22 @@
                     class="bi bi-box-arrow-right"></i></a>
               </ng-template>
             </td>
+            <td><i class="bi bi-pencil-square" (click)="editar(tarea._id)" style="cursor: pointer;"></i></td>
+            <td><i class="bi bi-trash" (click)="remove(tarea._id)" style="cursor: pointer;"></i></td>
             <!-- </div> -->
           </tr>
         </ng-container>
         <tr style="text-align: center;" *ngIf="showTareas.length === terminadas && hidden;">
-          <td colspan="7">No hay tareas sin terminar</td>
+          <td colspan="9">No hay tareas sin terminar</td>
         </tr>
       </ng-container>
       <ng-template #elseTemplate>
         <tr style="text-align: center;">
-          <td colspan="7">No hay tareas</td>
+          <td colspan="9">No hay tareas</td>
         </tr>
       </ng-template>
       <tr class="table-light" (click)="addTarea()" style="text-align: center; cursor: pointer;">
-        <td colspan="7">Crear tarea</td>
+        <td colspan="9">Crear tarea</td>
       </tr>
     </tbody>
   </table>
@@ -105,17 +109,20 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Becarios en "{{selected.name}}"</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Becarios en "{{tareas[this.selected].name}}"</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="row g-3 align-items-center" *ngFor="let b of selected.becarios; let sbi=index">
+        <div class="row g-3 align-items-center" *ngFor="let b of tareas[this.selected].becarios; let sbi=index">
           <div class="col-auto">
             <label for="b{{sbi}}" class="col-form-label">Nombre:</label>
           </div>
           <div class="col-auto">
             <input type="text" id="b{{sbi}}" class="form-control-plaintext" aria-describedby="passwordHelpInline"
               readonly [value]="becarios?getName(b):''">
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-x-circle" style="cursor: pointer;" (click)="removeTarea(b)"></i>
           </div>
         </div>
         <div class="row g-3 align-items-end">

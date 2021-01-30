@@ -7,7 +7,11 @@ var becarioSchema = new Schema({
     type: String,
     required: true,
   },
-  thours: {
+  cumplidas: {
+    type: Number,
+    default: 0
+  },
+  asignadas: {
     type: Number,
     default: 0
   },

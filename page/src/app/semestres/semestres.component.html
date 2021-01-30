@@ -1,10 +1,12 @@
 <div class="container">
-  <h1 class="my-3">Semestres</h1>
+  <h1 class="my-3">Gestiones</h1>
   <table class="table">
     <thead>
       <tr style="text-align: center;">
         <th scope="col">#</th>
         <th scope="col">Nombre</th>
+        <th scope="col">Editar</th>
+        <th scope="col">Eliminar</th>
       </tr>
     </thead>
     <tbody>
@@ -14,17 +16,19 @@
             <!-- <div> -->
             <th scope="row">{{i + 1}}</th>
             <td>{{semestre.name}}</td>
+            <td><i class="bi bi-pencil-square" (click)="editar(semestre._id)" style="cursor: pointer;"></i></td>
+            <td><i class="bi bi-trash" (click)="remove(semestre._id)" style="cursor: pointer;"></i></td>
             <!-- </div> -->
           </tr>
         </ng-container>
       </ng-container>
       <ng-template #elseTemplate>
         <tr style="text-align: center;">
-          <td colspan="2">No hay semestres</td>
+          <td colspan="4">No hay gestiones</td>
         </tr>
       </ng-template>
       <tr class="table-light" (click)="addSemestre()" style="text-align: center; cursor: pointer;">
-        <td colspan="2">Crear semestre</td>
+        <td colspan="4">Crear gestión</td>
       </tr>
     </tbody>
   </table>

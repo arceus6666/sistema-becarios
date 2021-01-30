@@ -23,15 +23,18 @@ export class SemestresComponent implements OnInit {
   }
 
   public addSemestre() {
-    const s = this.makeSemestre();
     Swal.fire({
-      title: 'Nuevo Semestre',
-      text: s,
+      title: 'Nueva Gestión',
+      input: 'text',
       showCancelButton: true,
-      confirmButtonText: 'Create'
+      confirmButtonText: 'Crear',
+      preConfirm: (val: string) => {
+        if (val.length > 0) return val;
+        Swal.showValidationMessage('Debe llenar el nombre')
+      }
     }).then((result: any) => {
       if (result.value) {
-        this.service.createSemestre({ name: s }).then((r: any) => {
+        this.service.createSemestre({ name: result.value }).then((r: any) => {
           this.semestres.push(r);
           Swal.fire('Created', '', 'success');
         }).catch(() => {
@@ -41,10 +44,47 @@ export class SemestresComponent implements OnInit {
     });
   }
 
-  public makeSemestre() {
-    const d = new Date(Date.now());
-    const m = d.getMonth() < 6 ? 'I' : 'II';
-    return `${m}-${d.getFullYear()}`;
+  public async editar(id) {
+    const i = await this.semestres.findIndex(ss => ss._id === id);
+    const s = this.semestres[i];
+    await Swal.fire({
+      title: 'Nuevo nombre?',
+      input: 'text',
+      showCancelButton: true,
+      confirmButtonText: 'Editar',
+      preConfirm: (val: string) => {
+        if (val.length > 0 && val !== s.name) return val;
+        Swal.showValidationMessage('El nombre debe ser diferente y no puede estar vacío')
+      }
+    }).then(async (result: any) => {
+      if (result.value) {
+        s.name = await result.value
+        await this.service.modifySemestre(s).then((r: any) => {
+          this.semestres[i] = r;
+          Swal.fire('Modificado', '', 'success');
+        }).catch(() => {
+          Swal.fire('Error', 'Please try again later', 'error');
+        });
+      }
+    });
+  }
+
+  public async remove(id) {
+    const i = await this.semestres.findIndex(ss => ss._id === id);
+    Swal.fire({
+      title: 'Eliminar?',
+      text: 'Se eliminará a todos los becarios y las tareas asignadas a este semestre',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Si'
+    }).then((result: any) => {
+      if (result.value) {
+        this.service.deleteSemestre(id).then(r => {
+          this.semestres.splice(i, 1);
+          Swal.fire('Eliminado', '', 'success');
+        })
+      }
+    })
   }
 
 }

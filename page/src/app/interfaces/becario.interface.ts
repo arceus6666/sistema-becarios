@@ -1,8 +1,10 @@
 export interface IBecario {
   _id?: string;
   name: string;
-  thours: number;
-  ahours?: number;
+  cumplidas: number;
+  asignadas: number;
+  curso?: number;
+  // totales?: number;
   semester: string;
   tareas: string[];
 }

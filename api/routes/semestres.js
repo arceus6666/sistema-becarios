@@ -6,6 +6,7 @@ const route = express.Router()
 
 route.post('/add', ctrl.create)
 route.delete('/delete/:id', ctrl.removeById)
+route.put('/update/:id', ctrl.update)
 route.get('/find/:id', ctrl.getById)
 route.get('/all', ctrl.getAll)
 

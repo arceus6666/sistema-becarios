@@ -10,34 +10,33 @@ export class AppComponent implements OnInit {
   title = 'page';
 
   ngOnInit(): void {
-    Swal.fire({
-      title: 'Password',
-      input: 'text',
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      preConfirm: data => {
-        if (data === /*'becarios2021#'*/'qwe') {
-          return true;
-        }
-        Swal.showValidationMessage('Wrong password');
-      },
-      backdrop:`
-        rgba(0,0,0,1)
-      `
-    }).then(res => {
-      if (res.isConfirmed) {
-        let timerInterval;
-        Swal.fire({
-          title: 'Welcome',
-          timer: 2000,
-          didOpen: () => {
-          },
-          willClose: () => {
-            clearInterval(timerInterval)
-          }
-        });
-      }
-    });
-
+    // Swal.fire({
+    //   title: 'Password',
+    //   input: 'text',
+    //   allowOutsideClick: false,
+    //   allowEscapeKey: false,
+    //   preConfirm: data => {
+    //     if (data === /*'becarios2021#'*/'qwe') {
+    //       return true;
+    //     }
+    //     Swal.showValidationMessage('Wrong password');
+    //   },
+    //   backdrop:`
+    //     rgba(0,0,0,1)
+    //   `
+    // }).then(res => {
+    //   if (res.isConfirmed) {
+    //     let timerInterval;
+    //     Swal.fire({
+    //       title: 'Welcome',
+    //       timer: 2000,
+    //       didOpen: () => {
+    //       },
+    //       willClose: () => {
+    //         clearInterval(timerInterval)
+    //       }
+    //     });
+    //   }
+    // });
   }
 }

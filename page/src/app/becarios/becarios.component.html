@@ -2,7 +2,7 @@
   <h1 class="my-3">Becarios</h1>
   <div class="input-group my-3">
     <label class="btn border border-end-0 rounded-start border-dark" for="inputGroupSelect01"
-      style="cursor:default">Semestre:</label>
+      style="cursor:default">Gestión:</label>
     <div class="btn-group">
       <span class="btn border border-start-0 rounded-0 border-dark" style="cursor:default">
         {{selected}}
@@ -31,9 +31,14 @@
       <tr style="text-align: center;">
         <th scope="col">#</th>
         <th scope="col">Nombre</th>
-        <th scope="col">Horas totales</th>
+        <th scope="col">Horas faltantes</th>
         <th scope="col">Horas asignadas</th>
-        <th scope="col" *ngIf="this.selected==='Todos'">Semestre</th>
+        <th scope="col">Horas totales</th>
+        <th scope="col">Horas cumplidas</th>
+        <th scope="col">Horas en curso</th>
+        <th scope="col" *ngIf="this.selected==='Todos'">Gestión</th>
+        <th scope="col">Editar</th>
+        <th scope="col">Eliminar</th>
       </tr>
     </thead>
     <tbody>
@@ -41,25 +46,32 @@
         <tr style="text-align: center;" *ngFor="let becario of showBecarios; let i=index">
           <th scope="row">{{i + 1}}</th>
           <td>{{becario.name}}</td>
-          <td>{{becario.thours}}</td>
-          <td>{{becario.ahours?becario.ahours:0}}</td>
+          <td>{{(becario.asignadas?becario.asignadas:0) - (becario.curso?becario.curso:0) -
+            (becario.cumplidas?becario.cumplidas:0)}}</td>
+          <td>{{becario.asignadas}}</td>
+          <td>{{(becario.curso ? becario.curso : 0) + becario.cumplidas}}</td>
+          <td>{{becario.cumplidas}}</td>
+          <td>{{becario.curso ? becario.curso : 0}}</td>
+          <!-- <td>{{becario.asignadas - becario.curso - becario.cumplidas}}</td> -->
           <td *ngIf="this.selected==='Todos'">{{becario.semester}}</td>
+          <td><i class="bi bi-pencil-square" (click)="editar(becario._id)" style="cursor: pointer;"></i></td>
+          <td><i class="bi bi-trash" (click)="remove(becario._id)" style="cursor: pointer;"></i></td>
         </tr>
       </ng-container>
       <ng-template #elseTemplate>
-        <td colspan="5" style="text-align: center;">
+        <td colspan="9" style="text-align: center;">
           <span>No hay becarios</span>
         </td>
       </ng-template>
 
       <tr class="table-light" style="cursor: pointer;" (click)="addBecario()">
         <ng-container *ngIf="this.selected==='Todos'; else elseTemplate">
-          <td colspan="5" style="text-align: center;">
+          <td colspan="10" style="text-align: center;">
             <span>Crear becario</span>
           </td>
         </ng-container>
         <ng-template #elseTemplate>
-          <td colspan="4" style="text-align: center;">
+          <td colspan="8" style="text-align: center;">
             <span>Crear becario</span>
           </td>
         </ng-template>

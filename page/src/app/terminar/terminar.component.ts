@@ -40,7 +40,8 @@ export class TerminarComponent implements OnInit {
     for (let i in this.horas) {
       let b = await this.becarios.find(bb => bb.name === this.tarea.becarios[i]);
       b.tareas = await b.tareas.filter(t => t !== this.tarea._id)
-      b.thours += await this.horas[i];
+      // b.asignadas -= await this.horas[i];
+      b.cumplidas += await this.horas[i];
       await this.servicio.modifyBecario(b);
     }
     this.tarea.finished = await true;
