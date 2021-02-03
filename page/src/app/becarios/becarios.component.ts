@@ -27,13 +27,14 @@ export class BecariosComponent implements OnInit {
   ) { }
 
   async ngOnInit() {
-    this.selected = 'Todos';
+    // this.selected = 'Todos';
     this.selectedid = '0';
     await this.service.getTareas().then((t: any) => {
       this.tareas = t;
     })
     await this.service.getSemestres().then((s: any) => {
       this.semestres = s;
+      // console.log(s[s.length - 1].name)
     })
     // }).then(() => {
     await this.service.getBecarios().then(async (b: any[]) => {
@@ -53,13 +54,14 @@ export class BecariosComponent implements OnInit {
       // console.log(this.becarios);
       // this.show = await b;
       // this.showBecarios = b;
-      this.sort({ _id: 0 });
       // b.forEach(e => {
       //   if (!this.semestres.includes(e.semester))
       //     this.semestres.push(e.semester);
       // });
     })
     // })
+    await this.sort({ _id: this.semestres[this.semestres.length - 1]._id });
+    this.selected = await this.semestres[this.semestres.length - 1].name;
   }
 
   public async getSemestre(id) {

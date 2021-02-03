@@ -65,12 +65,12 @@
       </ng-template>
 
       <tr class="table-light" style="cursor: pointer;" (click)="addBecario()">
-        <ng-container *ngIf="this.selected==='Todos'; else elseTemplate">
+        <ng-container *ngIf="this.selected==='Todos'; else elseTemplate2">
           <td colspan="10" style="text-align: center;">
             <span>Crear becario</span>
           </td>
         </ng-container>
-        <ng-template #elseTemplate>
+        <ng-template #elseTemplate2>
           <td colspan="8" style="text-align: center;">
             <span>Crear becario</span>
           </td>

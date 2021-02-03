@@ -45,6 +45,7 @@ export class TareasComponent implements OnInit {
     });
 
     await this.sort();
+    this.semestre = await this.semestres[this.semestres.length - 1].name;
     // await console.log(this.terminadas, this.showTareas.length)
 
   }
