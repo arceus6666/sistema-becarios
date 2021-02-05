@@ -32,6 +32,7 @@ const update = (req, res) => {
     await tarea.save().then(b => {
       res.status(200).json(b)
     }, err => {
+      console.log(err)
       res.status(500).json(err)
     })
   })
