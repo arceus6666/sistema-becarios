@@ -4,14 +4,21 @@
     <thead>
       <tr style="text-align: center;">
         <th scope="col">#</th>
-        <th scope="col">Nombre</th>
+        <th scope="col">
+          Nombre&nbsp;
+          <span [ngSwitch]="ordenar">
+            <i *ngSwitchCase="0" class="bi bi-arrow-down-up" (click)="ordenar = 1; sort();" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="1" class="bi bi-arrow-down" (click)="ordenar = 2; sort();" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="2" class="bi bi-arrow-up" (click)="ordenar = 0; sort();" style="cursor:pointer;"></i>
+          </span>
+        </th>
         <th scope="col">Editar</th>
         <th scope="col">Eliminar</th>
       </tr>
     </thead>
     <tbody>
       <ng-container *ngIf="semestres && semestres.length>0; else elseTemplate">
-        <ng-container *ngFor="let semestre of semestres; let i=index">
+        <ng-container *ngFor="let semestre of showSemestres; let i=index">
           <tr style="text-align: center;" *ngIf="!semestre.finished">
             <!-- <div> -->
             <th scope="row">{{i + 1}}</th>

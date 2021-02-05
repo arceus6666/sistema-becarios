@@ -11,6 +11,9 @@ import { ISemestre } from '../interfaces/semestre.interface';
 export class SemestresComponent implements OnInit {
 
   public semestres: ISemestre[] = [];
+  public showSemestres = [];
+
+  public ordenar = 0;
 
   constructor(
     private service: AppService
@@ -19,6 +22,7 @@ export class SemestresComponent implements OnInit {
   ngOnInit(): void {
     this.service.getSemestres().then((s: any) => {
       this.semestres = s;
+      this.sort();
     });
   }
 
@@ -36,6 +40,7 @@ export class SemestresComponent implements OnInit {
       if (result.value) {
         this.service.createSemestre({ name: result.value }).then((r: any) => {
           this.semestres.push(r);
+          this.sort()
           Swal.fire('Created', '', 'success');
         }).catch(() => {
           Swal.fire('Error', 'Please try again later', 'error');
@@ -61,6 +66,7 @@ export class SemestresComponent implements OnInit {
         s.name = await result.value
         await this.service.modifySemestre(s).then((r: any) => {
           this.semestres[i] = r;
+          this.sort()
           Swal.fire('Modificado', '', 'success');
         }).catch(() => {
           Swal.fire('Error', 'Please try again later', 'error');
@@ -81,10 +87,22 @@ export class SemestresComponent implements OnInit {
       if (result.value) {
         this.service.deleteSemestre(id).then(r => {
           this.semestres.splice(i, 1);
+          this.sort()
           Swal.fire('Eliminado', '', 'success');
         })
       }
     })
+  }
+
+  public sort() {
+    // console.log(this.ordenar)
+    this.showSemestres = [...this.semestres];
+    if (this.ordenar > 0)
+      this.showSemestres.sort((a, b) => {
+
+        if (this.ordenar === 1) return a.name < b.name ? -1 : 1
+        else return a.name < b.name ? 1 : -1
+      })
   }
 
 }

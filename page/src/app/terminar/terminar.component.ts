@@ -14,7 +14,7 @@ export class TerminarComponent implements OnInit {
 
   public tarea: ITarea;
   public becarios: IBecario[];
-  public horas: number[];
+  public horas: any[];
 
   constructor(
     private servicio: AppService,
@@ -28,20 +28,22 @@ export class TerminarComponent implements OnInit {
     }).then(() => {
       this.servicio.getTareaById(this.route.snapshot.params.id).then(async (t: any) => {
         this.tarea = await t;
+        this.horas = []
         for (let i in this.tarea.becarios) {
-          this.tarea.becarios[i] = await this.becarios.find(e => e._id === this.tarea.becarios[i]).name;
+          let name = await this.becarios.find(e => e._id === this.tarea.becarios[i]).name;
+          let hours = await this.tarea.hours;
+          this.horas.push({ name, hours })
         }
-        this.horas = new Array(this.tarea.becarios.length).fill(0);
       })
     })
   }
 
   public async asignar() {
     for (let i in this.horas) {
-      let b = await this.becarios.find(bb => bb.name === this.tarea.becarios[i]);
+      let b = await this.becarios.find(bb => bb.name === this.horas[i].name);
       b.tareas = await b.tareas.filter(t => t !== this.tarea._id)
       // b.asignadas -= await this.horas[i];
-      b.cumplidas += await this.horas[i];
+      b.cumplidas += await this.horas[i].hours;
       await this.servicio.modifyBecario(b);
     }
     this.tarea.finished = await true;

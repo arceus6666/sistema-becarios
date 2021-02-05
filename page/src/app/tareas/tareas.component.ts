@@ -22,6 +22,12 @@ export class TareasComponent implements OnInit {
   public semestre = null;
   public terminadas = 0;
 
+  public ordenar = {
+    nombre: 0,
+    periodo: 0,
+    horas: 0,
+  }
+
   constructor(
     private service: AppService
   ) { }
@@ -31,7 +37,7 @@ export class TareasComponent implements OnInit {
       this.tareas = r.concat();
       // console.log(r)
       r.forEach(t => { if (t.finished) this.terminadas++; });
-      this.selected = 0;
+      this.selected = r.length > 0 ? 0 : null;
     })
     await this.service.getBecarios().then((b: any) => {
       // console.log(b)
@@ -45,12 +51,19 @@ export class TareasComponent implements OnInit {
     });
 
     await this.sort();
-    this.semestre = await this.semestres[this.semestres.length - 1].name;
+    if (this.semestres.length > 0)
+      this.semestre = await this.semestres[this.semestres.length - 1].name;
     // await console.log(this.terminadas, this.showTareas.length)
 
   }
 
   public async addTarea() {
+
+    if (this.semestres.length < 1) {
+      Swal.fire('Debe crear un semestre', '', 'error');
+      return;
+    }
+
     const inputOptions = {};
 
     // await console.log('io')
@@ -264,7 +277,7 @@ export class TareasComponent implements OnInit {
 
     for (let i in this.becarios) {
       // await console.log(this.becarios[i].semester, this.selected.semester)
-      const sem = await this.idASemestre(this.becarios[i].semester)
+      // const sem = await this.idASemestre(this.becarios[i].semester)
       // await console.log(sem)
       if (this.becarios[i].semester === this.tareas[this.selected].semester && !this.tareas[this.selected].becarios.includes(this.becarios[i]._id))
         inputOptions[this.becarios[i]._id] = await this.becarios[i].name;
@@ -293,12 +306,12 @@ export class TareasComponent implements OnInit {
         // await this.tareas[this.selected].becarios.push(res.value)
         // await console.log(t)
         let tr: any = await this.service.modifyTarea(t);
-        await console.log(t, tr)
+        // await console.log(t, tr)
         if (error) {
           Swal.fire('Error', 'Please try again later', 'error');
           return;
         }
-        this.tareas[this.selected] = t;
+        this.tareas[this.selected] = tr;
         let b = await this.becarios.find(b => b._id === res.value);
         await b.tareas.push(this.tareas[this.selected]._id);
         await this.service.modifyBecario(b).catch(e => { error = true; });
@@ -307,7 +320,7 @@ export class TareasComponent implements OnInit {
           Swal.fire('Error', 'Please try again later', 'error');
           return;
         }
-        console.log(b)
+        // console.log(b)
         Swal.fire('Added', '', 'success');
       }
     });
@@ -344,10 +357,10 @@ export class TareasComponent implements OnInit {
     for (let b of this.becarios) {
       if (b._id === id) return b.name;
     }
-    return '';
+    return id;
   }
 
-  public sort() {
+  public sort(tipo: number = -1) {
     // await console.log('sort', this.tareas)
     this.showTareas = [];
     // console.log(this.showTareas)
@@ -366,6 +379,42 @@ export class TareasComponent implements OnInit {
 
       this.showTareas.push(tt);
     })
+
+    // console.log('sort', tipo, this.ordenar)
+    switch (tipo) {
+      case 0:
+        this.ordenar.horas = 0
+        this.ordenar.periodo = 0
+        if (this.ordenar.nombre > 0)
+          this.showTareas.sort((a, b) => {
+            if (this.ordenar.nombre === 1) return a.name < b.name ? -1 : 1
+            else return a.name < b.name ? 1 : -1
+          })
+        break;
+      case 1:
+        this.ordenar.horas = 0
+        this.ordenar.nombre = 0
+        if (this.ordenar.periodo > 0)
+          this.showTareas.sort((a, b) => {
+            let aa = parseInt(a.edate) - parseInt(a.bdate)
+            let bb = parseInt(b.edate) - parseInt(b.bdate)
+            // console.log(aa, bb)
+            if (this.ordenar.periodo === 1) return aa - bb
+            else return bb - aa
+          })
+        break;
+      case 2:
+        this.ordenar.nombre = 0
+        this.ordenar.periodo = 0
+        if (this.ordenar.horas > 0)
+          this.showTareas.sort((a, b) => {
+            if (this.ordenar.horas === 1) return a.hours - b.hours
+            else return b.hours - a.hours
+          })
+        break;
+      default:
+        break;
+    }
     // this.showTareas = this.tareas.map(async t => {
     //   console.log(t)
     //   console.log(tt)

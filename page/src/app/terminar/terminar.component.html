@@ -1,15 +1,26 @@
-<div class="container" *ngIf="tarea">
+<div class="container" *ngIf="tarea && horas">
   <h1 class="my-2">{{tarea.name}}</h1>
-  <div class="row" *ngFor="let becario of tarea.becarios; let i=index">
-    <div class="input-group mb-3">
-      <span class="input-group-text" id="basic-addon1">{{becario}}</span>
-      <span class="input-group-text"><i class="bi-alarm"></i>:</span>
-      <input type="number" class="form-control" placeholder="0" [value]="tarea.hours" [(ngModel)]="horas[i]">
-    </div>
-  </div>
-  <div class="row">
-    <div class="col">
-      <button class="btn btn-outline-secondary" type="button" id="button-addon2" (click)="asignar()">Asignar</button>
-    </div>
-  </div>
+  <table class="table" style="text-align: center;">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Horas</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let h of horas; let i=index">
+        <th scope="row">{{i + 1}}</th>
+        <td>{{h.name}}</td>
+        <td>
+          <input type="number" class="form-control" placeholder="0" [value]="h.hours" [(ngModel)]="h.hours">
+        </td>
+      </tr>
+      <tr class="table-light" style="cursor: pointer;" (click)="asignar()">
+        <td colspan="3">
+          Asignar horas
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>

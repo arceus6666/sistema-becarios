@@ -30,12 +30,72 @@
     <thead>
       <tr style="text-align: center;">
         <th scope="col">#</th>
-        <th scope="col">Nombre</th>
-        <th scope="col">Horas faltantes</th>
-        <th scope="col">Horas asignadas</th>
-        <th scope="col">Horas totales</th>
-        <th scope="col">Horas cumplidas</th>
-        <th scope="col">Horas en curso</th>
+        <th scope="col">
+          Nombre&nbsp;
+          <span [ngSwitch]="ordenar.nombre">
+            <i *ngSwitchCase="0" class="bi bi-arrow-down-up"
+              (click)="ordenar.nombre = 1; sort({_id:selectedid,name:selected},0);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="1" class="bi bi-arrow-down"
+              (click)="ordenar.nombre = 2; sort({_id:selectedid,name:selected},0);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="2" class="bi bi-arrow-up"
+              (click)="ordenar.nombre = 0; sort({_id:selectedid,name:selected},0);" style="cursor:pointer;"></i>
+          </span>
+        </th>
+        <th scope="col">
+          Horas faltantes&nbsp;
+          <span [ngSwitch]="ordenar.faltantes">
+            <i *ngSwitchCase="0" class="bi bi-arrow-down-up"
+              (click)="ordenar.faltantes = 1; sort({_id:selectedid,name:selected},1);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="1" class="bi bi-arrow-down"
+              (click)="ordenar.faltantes = 2; sort({_id:selectedid,name:selected},1);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="2" class="bi bi-arrow-up"
+              (click)="ordenar.faltantes = 0; sort({_id:selectedid,name:selected},1);" style="cursor:pointer;"></i>
+          </span>
+        </th>
+        <th scope="col">
+          Horas asignadas&nbsp;
+          <span [ngSwitch]="ordenar.asignadas">
+            <i *ngSwitchCase="0" class="bi bi-arrow-down-up"
+              (click)="ordenar.asignadas = 1; sort({_id:selectedid,name:selected},2);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="1" class="bi bi-arrow-down"
+              (click)="ordenar.asignadas = 2; sort({_id:selectedid,name:selected},2);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="2" class="bi bi-arrow-up"
+              (click)="ordenar.asignadas = 0; sort({_id:selectedid,name:selected},2);" style="cursor:pointer;"></i>
+          </span>
+        </th>
+        <th scope="col">
+          Horas totales&nbsp;
+          <span [ngSwitch]="ordenar.totales">
+            <i *ngSwitchCase="0" class="bi bi-arrow-down-up"
+              (click)="ordenar.totales = 1; sort({_id:selectedid,name:selected},3)" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="1" class="bi bi-arrow-down"
+              (click)="ordenar.totales = 2; sort({_id:selectedid,name:selected},3);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="2" class="bi bi-arrow-up"
+              (click)="ordenar.totales = 0; sort({_id:selectedid,name:selected},3);" style="cursor:pointer;"></i>
+          </span>
+        </th>
+        <th scope="col">
+          Horas cumplidas&nbsp;
+          <span [ngSwitch]="ordenar.cumplidas">
+            <i *ngSwitchCase="0" class="bi bi-arrow-down-up"
+              (click)="ordenar.cumplidas = 1; sort({_id:selectedid,name:selected},4);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="1" class="bi bi-arrow-down"
+              (click)="ordenar.cumplidas = 2; sort({_id:selectedid,name:selected},4);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="2" class="bi bi-arrow-up"
+              (click)="ordenar.cumplidas = 0; sort({_id:selectedid,name:selected},4);" style="cursor:pointer;"></i>
+          </span>
+        </th>
+        <th scope="col">
+          Horas en curso&nbsp;
+          <span [ngSwitch]="ordenar.curso">
+            <i *ngSwitchCase="0" class="bi bi-arrow-down-up"
+              (click)="ordenar.curso = 1; sort({_id:selectedid,name:selected},5);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="1" class="bi bi-arrow-down"
+              (click)="ordenar.curso = 2; sort({_id:selectedid,name:selected},5);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="2" class="bi bi-arrow-up"
+              (click)="ordenar.curso = 0; sort({_id:selectedid,name:selected},5);" style="cursor:pointer;"></i>
+          </span>
+        </th>
         <th scope="col" *ngIf="this.selected==='Todos'">Gestión</th>
         <th scope="col">Editar</th>
         <th scope="col">Eliminar</th>
@@ -46,12 +106,11 @@
         <tr style="text-align: center;" *ngFor="let becario of showBecarios; let i=index">
           <th scope="row">{{i + 1}}</th>
           <td>{{becario.name}}</td>
-          <td>{{(becario.asignadas?becario.asignadas:0) - (becario.curso?becario.curso:0) -
-            (becario.cumplidas?becario.cumplidas:0)}}</td>
+          <td>{{becario.faltantes}}</td>
           <td>{{becario.asignadas}}</td>
-          <td>{{(becario.curso ? becario.curso : 0) + becario.cumplidas}}</td>
+          <td>{{becario.totales}}</td>
           <td>{{becario.cumplidas}}</td>
-          <td>{{becario.curso ? becario.curso : 0}}</td>
+          <td>{{becario.curso}}</td>
           <!-- <td>{{becario.asignadas - becario.curso - becario.cumplidas}}</td> -->
           <td *ngIf="this.selected==='Todos'">{{becario.semester}}</td>
           <td><i class="bi bi-pencil-square" (click)="editar(becario._id)" style="cursor: pointer;"></i></td>
@@ -71,7 +130,7 @@
           </td>
         </ng-container>
         <ng-template #elseTemplate2>
-          <td colspan="8" style="text-align: center;">
+          <td colspan="9" style="text-align: center;">
             <span>Crear becario</span>
           </td>
         </ng-template>

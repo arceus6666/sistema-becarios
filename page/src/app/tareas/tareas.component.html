@@ -47,10 +47,40 @@
     <thead>
       <tr style="text-align: center;">
         <th scope="col">#</th>
-        <th scope="col">Nombre</th>
-        <th scope="col">Periodo</th>
-        <th scope="col">Gestión</th>
-        <th scope="col">Horas</th>
+        <th scope="col">
+          Nombre&nbsp;
+          <span [ngSwitch]="ordenar.nombre">
+            <i *ngSwitchCase="0" class="bi bi-arrow-down-up"
+              (click)="ordenar.nombre = 1; sort(0);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="1" class="bi bi-arrow-down"
+              (click)="ordenar.nombre = 2; sort(0);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="2" class="bi bi-arrow-up"
+              (click)="ordenar.nombre = 0; sort(0);" style="cursor:pointer;"></i>
+          </span>
+        </th>
+        <th scope="col">
+          Periodo&nbsp;
+          <span [ngSwitch]="ordenar.periodo">
+            <i *ngSwitchCase="0" class="bi bi-arrow-down-up"
+              (click)="ordenar.periodo = 1; sort(1);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="1" class="bi bi-arrow-down"
+              (click)="ordenar.periodo = 2; sort(1);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="2" class="bi bi-arrow-up"
+              (click)="ordenar.periodo = 0; sort(1);" style="cursor:pointer;"></i>
+          </span>
+        </th>
+        <th scope="col" *ngIf="!semestre">Gestión</th>
+        <th scope="col">
+          Horas&nbsp;
+          <span [ngSwitch]="ordenar.horas">
+            <i *ngSwitchCase="0" class="bi bi-arrow-down-up"
+              (click)="ordenar.horas = 1; sort(2);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="1" class="bi bi-arrow-down"
+              (click)="ordenar.horas = 2; sort(2);" style="cursor:pointer;"></i>
+            <i *ngSwitchCase="2" class="bi bi-arrow-up"
+              (click)="ordenar.horas = 0; sort(2);" style="cursor:pointer;"></i>
+          </span>
+        </th>
         <th scope="col">Becarios</th>
         <th scope="col">Terminar</th>
         <th scope="col">Editar</th>
@@ -65,8 +95,8 @@
             <!-- <div> -->
             <th scope="row">{{i + 1}}</th>
             <td>{{tarea.name}}</td>
-            <td>{{tarea.bdate | date}} - {{tarea.edate | date}}</td>
-            <td>{{(tarea.semester)}}</td>
+            <td>{{tarea.bdate | date:'dd/MM/yyyy'}} - {{tarea.edate | date:'dd/MM/yyyy'}}</td>
+            <td *ngIf="!semestre">{{(tarea.semester)}}</td>
             <td>{{tarea.hours}}</td>
             <td>
               <span data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-tarea="{{i}}" (click)="selected = i;"
@@ -74,16 +104,15 @@
                 <i class="bi bi-info-circle"></i>
               </span>
             </td>
-            <td>
-              <ng-container *ngIf="tarea.finished; else elseTemplate2">
-                <span><i class="bi bi-check-square"></i></span>
-              </ng-container>
-              <ng-template #elseTemplate2>
-                <a [routerLink]="[ '/terminar', tarea._id ]" style="color:black;"><i
-                    class="bi bi-box-arrow-right"></i></a>
-              </ng-template>
-            </td>
-            <td><i class="bi bi-pencil-square" (click)="editar(tarea._id)" style="cursor: pointer;"></i></td>
+            <ng-container *ngIf="tarea.finished; else elseTemplate2">
+              <td><i class="bi bi-check-square"></i></td>
+              <td><i class="bi bi-pencil-square text-muted"></i></td>
+            </ng-container>
+            <ng-template #elseTemplate2>
+              <td><a [routerLink]="[ '/terminar', tarea._id ]" style="color:black;"><i
+                    class="bi bi-box-arrow-right"></i></a></td>
+              <td><i class="bi bi-pencil-square" (click)="editar(tarea._id)" style="cursor: pointer;"></i></td>
+            </ng-template>
             <td><i class="bi bi-trash" (click)="remove(tarea._id)" style="cursor: pointer;"></i></td>
             <!-- </div> -->
           </tr>
@@ -105,7 +134,7 @@
 </div>
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
-  *ngIf="tareas && selected !== undefined">
+  *ngIf="tareas && selected !== null">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -114,6 +143,9 @@
       </div>
       <div class="modal-body">
         <div class="row g-3 align-items-center" *ngFor="let b of tareas[this.selected].becarios; let sbi=index">
+          <div class="col-1" *ngIf="!tareas[selected].finished">
+            <i class="bi bi-x-circle" style="cursor: pointer;" (click)="removeTarea(b)"></i>
+          </div>
           <div class="col-auto">
             <label for="b{{sbi}}" class="col-form-label">Nombre:</label>
           </div>
@@ -121,11 +153,8 @@
             <input type="text" id="b{{sbi}}" class="form-control-plaintext" aria-describedby="passwordHelpInline"
               readonly [value]="becarios?getName(b):''">
           </div>
-          <div class="col-auto">
-            <i class="bi bi-x-circle" style="cursor: pointer;" (click)="removeTarea(b)"></i>
-          </div>
         </div>
-        <div class="row g-3 align-items-end">
+        <div class="row g-3 justify-content-center" *ngIf="!tareas[selected].finished">
           <div class="col-auto">
             <button class="btn btn-outline-dark" (click)="tareaABecario()">Asignar</button>
           </div>

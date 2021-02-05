@@ -4,6 +4,8 @@ export interface IBecario {
   cumplidas: number;
   asignadas: number;
   curso?: number;
+  faltantes?: number;
+  totales?: number;
   // totales?: number;
   semester: string;
   tareas: string[];

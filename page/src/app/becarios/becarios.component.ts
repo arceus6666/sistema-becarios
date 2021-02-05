@@ -21,6 +21,14 @@ export class BecariosComponent implements OnInit {
   public selected: string;
   public selectedid: string;
 
+  public ordenar = {
+    nombre: 0,
+    faltantes: 0,
+    asignadas: 0,
+    totales: 0,
+    cumplidas: 0,
+    curso: 0,
+  }
 
   constructor(
     private service: AppService
@@ -37,10 +45,10 @@ export class BecariosComponent implements OnInit {
       // console.log(s[s.length - 1].name)
     })
     // }).then(() => {
-    await this.service.getBecarios().then(async (b: any[]) => {
+    await this.service.getBecarios().then(async (b: IBecario[]) => {
       // await console.log(this.semestres)
-      // console.log(this.becarios);
       for (let i in b) {
+        // await console.log(b[i]);
         b[i].curso = 0;
         for (let t of this.tareas) {
           // console.log(i, t)
@@ -49,8 +57,11 @@ export class BecariosComponent implements OnInit {
             b[i].curso += await t.hours;
           }
         }
+        b[i].faltantes = await (b[i].asignadas - b[i].curso - b[i].cumplidas);
+        b[i].totales = await (b[i].curso + b[i].cumplidas);
+        // await console.log(b[i]);
       }
-      this.becarios = b.concat();
+      this.becarios = await b.concat();
       // console.log(this.becarios);
       // this.show = await b;
       // this.showBecarios = b;
@@ -60,8 +71,10 @@ export class BecariosComponent implements OnInit {
       // });
     })
     // })
-    await this.sort({ _id: this.semestres[this.semestres.length - 1]._id });
-    this.selected = await this.semestres[this.semestres.length - 1].name;
+    if (this.semestres.length > 0) {
+      await this.sort({ _id: this.semestres[this.semestres.length - 1]._id });
+      this.selected = await this.semestres[this.semestres.length - 1].name;
+    }
   }
 
   public async getSemestre(id) {
@@ -70,6 +83,11 @@ export class BecariosComponent implements OnInit {
   }
 
   public async addBecario() {
+
+    if (this.semestres.length < 1) {
+      Swal.fire('Debe crear un semestre primero', '', 'error')
+      return;
+    }
 
     const inputOptions = {};
 
@@ -122,10 +140,13 @@ export class BecariosComponent implements OnInit {
         // await console.log(r)
         // r.semester = await this.semestres.find(s => s._id === answers[1]).name;
         // await console.log(r)
+        r.curso = await 0
+        r.faltantes = await r.asignadas;
+        r.totales = await 0;
         await this.becarios.push(r);
         // if (!this.semestres.includes(answers[1]))
         //   await this.semestres.push(answers[1]);
-        await this.sort({ _id: 0 });
+        await this.sort({ _id: this.semestres[this.semestres.length - 1]._id });
         await Swal.fire({
           title: 'Created',
           icon: 'success'
@@ -137,18 +158,17 @@ export class BecariosComponent implements OnInit {
   public async editar(id) {
 
     let i = this.becarios.findIndex(bb => bb._id === id)
-    let b = this.becarios[i];
-    // console.log(b)
-    // const inputOptions = {}
-    // for (let s of this.semestres) {
-    //   inputOptions[s._id] = await s.name;
-    // }
-    // b.curso = 0;
+    let b = JSON.parse(JSON.stringify(this.becarios[i]));
+    // await console.log(b)
+    const inputOptions = {}
+    for (let s of this.semestres) {
+      inputOptions[s._id] = await s.name;
+    }
     Swal.mixin({
       confirmButtonText: 'Next &rarr;',
       showCancelButton: true,
-      progressSteps: ['1'],
-      // progressSteps: ['1', '2', '3', '4'],
+      // progressSteps: ['1'],
+      progressSteps: ['1', '2', '3',],
     }).queue([
       {
         title: 'Nombre',
@@ -164,19 +184,19 @@ export class BecariosComponent implements OnInit {
       //   input: 'number',
       //   inputValue: b.cumplidas,
       // },
-      // {
-      //   title: 'Horas asignadas',
-      //   input: 'number',
-      //   inputValue: b.asignadas,
-      // },
-      // {
-      //   title: 'Gestión',
-      //   icon: 'warning',
-      //   text: '(Cambiar la gestión borrará la lista de tareas de este becario)',
-      //   input: 'select',
-      //   inputOptions,
-      //   inputValue: b.semester
-      // }
+      {
+        title: 'Horas asignadas',
+        input: 'number',
+        inputValue: b.asignadas,
+      },
+      {
+        title: 'Gestión',
+        icon: 'warning',
+        text: '(Cambiar la gestión borrará la lista de tareas de este becario)',
+        input: 'select',
+        inputOptions,
+        inputValue: b.semester
+      }
     ]).then((result: any) => {
       Swal.showLoading();
       const answers: string[] = result.value;
@@ -184,12 +204,22 @@ export class BecariosComponent implements OnInit {
         const nb: IBecario = {
           _id: b._id,
           name: answers[0],
-          cumplidas: b.cumplidas,
-          asignadas: b.asignadas,
-          semester: b.semester,
+          cumplidas: parseInt(answers[1]),
+          asignadas: b.cumplidas,
+          semester: answers[2],
           tareas: b.tareas
         }
-        this.service.modifyBecario(nb).then((bb: any) => {
+        // console.log(nb)
+        this.service.modifyBecario(nb).then(async (bb: any) => {
+          // await console.log(bb)
+          bb.curso = await 0;
+          for (let t of this.tareas) {
+            // console.log(i, t)
+            if (!t.finished && t.becarios.includes(bb._id)) {
+              // console.log(t, b[i], 'includes')
+              bb.curso += await t.hours;
+            }
+          }
           this.becarios[i] = bb;
           this.sort({ _id: this.selectedid })
           Swal.fire('Modificado', '', 'success')
@@ -219,26 +249,108 @@ export class BecariosComponent implements OnInit {
     })
   }
 
-  public sort(s) {
-    // console.log('sorting')
+  public sort(s, tipo: number = -1) {
     this.showBecarios = [];
     const found = this.semestres.findIndex(e => e._id === s._id);
     if (found < 0) {
       this.selected = 'Todos';
       this.becarios.forEach(b => {
+        // console.log(b)
         const bb = {
           _id: b._id,
           name: b.name,
           cumplidas: b.cumplidas,
           asignadas: b.asignadas,
           curso: b.curso,
-          // totales: b.totales,
+          totales: b.totales,
+          faltantes: b.faltantes,
           semester: this.semestres.find(ss => ss._id === b.semester).name,
           tareas: b.tareas,
         }
         this.showBecarios.push(bb)
       })
-      return;
+      switch (tipo) {
+        case 0:
+          // console.log('sorting', 0)
+          this.ordenar.asignadas = 0;
+          this.ordenar.cumplidas = 0;
+          this.ordenar.curso = 0;
+          this.ordenar.totales = 0;
+          this.ordenar.faltantes = 0;
+          if (this.ordenar.nombre > 0)
+            this.showBecarios.sort((a, b) => {
+              if (this.ordenar.nombre === 1) return a.name < b.name ? -1 : 1
+              else return a.name < b.name ? 1 : -1
+            })
+          return;
+        case 1:
+          // console.log('sorting', 1)
+          this.ordenar.asignadas = 0;
+          this.ordenar.cumplidas = 0;
+          this.ordenar.curso = 0;
+          this.ordenar.totales = 0;
+          this.ordenar.nombre = 0;
+          if (this.ordenar.faltantes > 0)
+            this.showBecarios.sort((a, b) => {
+              if (this.ordenar.faltantes === 1) return a.faltantes - b.faltantes
+              else return b.faltantes - a.faltantes
+            })
+          return;
+        case 2:
+          // console.log('sorting', 2)
+          this.ordenar.nombre = 0;
+          this.ordenar.cumplidas = 0;
+          this.ordenar.curso = 0;
+          this.ordenar.totales = 0;
+          this.ordenar.faltantes = 0;
+          if (this.ordenar.asignadas > 0)
+            this.showBecarios.sort((a, b) => {
+              if (this.ordenar.asignadas === 1) return a.asignadas - b.asignadas
+              else return b.asignadas - a.asignadas
+            })
+          return;
+        case 3:
+          // console.log('sorting', 3)
+          this.ordenar.asignadas = 0;
+          this.ordenar.cumplidas = 0;
+          this.ordenar.curso = 0;
+          this.ordenar.nombre = 0;
+          this.ordenar.faltantes = 0;
+          if (this.ordenar.totales > 0)
+            this.showBecarios.sort((a, b) => {
+              if (this.ordenar.totales === 1) return a.totales - b.totales
+              else return b.totales - a.totales
+            })
+          return;
+        case 4:
+          // console.log('sorting', 4)
+          this.ordenar.asignadas = 0;
+          this.ordenar.nombre = 0;
+          this.ordenar.curso = 0;
+          this.ordenar.totales = 0;
+          this.ordenar.faltantes = 0;
+          if (this.ordenar.cumplidas > 0)
+            this.showBecarios.sort((a, b) => {
+              if (this.ordenar.cumplidas === 1) return a.cumplidas - b.cumplidas
+              else return b.cumplidas - a.cumplidas
+            })
+          return;
+        case 5:
+          // console.log('sorting', 5)
+          this.ordenar.asignadas = 0;
+          this.ordenar.cumplidas = 0;
+          this.ordenar.nombre = 0;
+          this.ordenar.totales = 0;
+          this.ordenar.faltantes = 0;
+          if (this.ordenar.curso > 0)
+            this.showBecarios.sort((a, b) => {
+              if (this.ordenar.curso === 1) return a.name - b.curso
+              else return b.curso - a.curso
+            })
+          return;
+        default:
+          return;
+      }
     }
     this.selected = s.name;
     this.selectedid = s._id;
@@ -252,13 +364,100 @@ export class BecariosComponent implements OnInit {
           cumplidas: b.cumplidas,
           asignadas: b.asignadas,
           curso: b.curso,
-          // totales: b.totales,
+          totales: b.totales,
+          faltantes: b.faltantes,
           semester: this.semestres.find(ss => ss._id === b.semester).name,
           tareas: b.tareas,
         }
         this.showBecarios.push(bb)
       }
     })
+    switch (tipo) {
+      case 0:
+        // console.log('sorting', 0, this.ordenar.nombre)
+        this.ordenar.asignadas = 0;
+        this.ordenar.cumplidas = 0;
+        this.ordenar.curso = 0;
+        this.ordenar.totales = 0;
+        this.ordenar.faltantes = 0;
+        if (this.ordenar.nombre > 0) {
+          // console.log('sort', this.ordenar.nombre === 1)
+          this.showBecarios.sort((a, b) => {
+            // console.log(a.name, b.name)
+            if (this.ordenar.nombre === 1) return a.name < b.name ? -1 : 1
+            else return a.name < b.name ? 1 : -1
+          })
+        }
+        return;
+      case 1:
+        // console.log('sorting', 1)
+        this.ordenar.asignadas = 0;
+        this.ordenar.cumplidas = 0;
+        this.ordenar.curso = 0;
+        this.ordenar.totales = 0;
+        this.ordenar.nombre = 0;
+        if (this.ordenar.faltantes > 0)
+          this.showBecarios.sort((a, b) => {
+            if (this.ordenar.faltantes === 1) return a.faltantes - b.faltantes
+            else return b.faltantes - a.faltantes
+          })
+        return;
+      case 2:
+        // console.log('sorting', 2)
+        this.ordenar.nombre = 0;
+        this.ordenar.cumplidas = 0;
+        this.ordenar.curso = 0;
+        this.ordenar.totales = 0;
+        this.ordenar.faltantes = 0;
+        if (this.ordenar.asignadas > 0)
+          this.showBecarios.sort((a, b) => {
+            if (this.ordenar.asignadas === 1) return a.asignadas - b.asignadas
+            else return b.asignadas - a.asignadas
+          })
+        return;
+      case 3:
+        // console.log('sorting', 3)
+        this.ordenar.asignadas = 0;
+        this.ordenar.cumplidas = 0;
+        this.ordenar.curso = 0;
+        this.ordenar.nombre = 0;
+        this.ordenar.faltantes = 0;
+        if (this.ordenar.totales > 0)
+          this.showBecarios.sort((a, b) => {
+            if (this.ordenar.totales === 1) return a.totales - b.totales
+            else return b.totales - a.totales
+          })
+        return;
+      case 4:
+        // console.log('sorting', 4)
+        this.ordenar.asignadas = 0;
+        this.ordenar.nombre = 0;
+        this.ordenar.curso = 0;
+        this.ordenar.totales = 0;
+        this.ordenar.faltantes = 0;
+        if (this.ordenar.cumplidas > 0)
+          this.showBecarios.sort((a, b) => {
+            if (this.ordenar.cumplidas === 1) return a.cumplidas - b.cumplidas
+            else return b.cumplidas - a.cumplidas
+          })
+        return;
+      case 5:
+        // console.log('sorting', 5)
+        this.ordenar.asignadas = 0;
+        this.ordenar.cumplidas = 0;
+        this.ordenar.nombre = 0;
+        this.ordenar.totales = 0;
+        this.ordenar.faltantes = 0;
+        if (this.ordenar.curso > 0)
+          this.showBecarios.sort((a, b) => {
+            if (this.ordenar.curso === 1) return a.name - b.curso
+            else return b.curso - a.curso
+          })
+        return;
+      default:
+        return;
+    }
+
     // this.showBecarios = this.becarios.filter(b => b.semester === s.name);
   }
 
