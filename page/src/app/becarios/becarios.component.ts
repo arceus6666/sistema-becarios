@@ -204,11 +204,15 @@ export class BecariosComponent implements OnInit {
         const nb: IBecario = {
           _id: b._id,
           name: answers[0],
-          cumplidas: parseInt(answers[1]),
-          asignadas: b.cumplidas,
+          asignadas: parseInt(answers[1]),
+          cumplidas: b.cumplidas,
           semester: answers[2],
-          tareas: b.tareas
+          tareas: b.tareas,
+          totales: b.totales,
+          curso: b.curso
+          // faltantes:b.faltantes
         }
+        // nb.faltantes = nb.asignadas - nb.curso - nb.cumplidas;
         // console.log(nb)
         this.service.modifyBecario(nb).then(async (bb: any) => {
           // await console.log(bb)
@@ -220,6 +224,8 @@ export class BecariosComponent implements OnInit {
               bb.curso += await t.hours;
             }
           }
+          bb.totales = bb.curso + bb.cumplidas
+          bb.faltantes = b.asignadas - bb.curso - bb.cumplidas
           this.becarios[i] = bb;
           this.sort({ _id: this.selectedid })
           Swal.fire('Modificado', '', 'success')

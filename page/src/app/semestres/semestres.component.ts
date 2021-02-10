@@ -42,7 +42,8 @@ export class SemestresComponent implements OnInit {
           this.semestres.push(r);
           this.sort()
           Swal.fire('Created', '', 'success');
-        }).catch(() => {
+        }).catch((e) => {
+          console.log(e)
           Swal.fire('Error', 'Please try again later', 'error');
         });
       }
